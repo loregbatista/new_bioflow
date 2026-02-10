@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SplitPlot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+<h1>Single trial analysis — one-click interface</h1>
+
+<p class="muted">
+Click the button, select a CSV file with: block, plot, sub, response and index (optional).
+</p>
+
+<button id="runBtn">Submit</button>
+
+<p id="status" class="muted"></p>
+
+<button id="downloadBtn" disabled>Download</button>
+<pre id="output">(no output yet)</pre>
+
+<!-- hidden file input -->
+<input id="csvFile" type="file" accept=".csv,text/csv" hidden>
+
+<script>
+(() => {
+
+  const urlCGI = "/cgi-bin/cgi.R";
+  const reqCols = ["block", "plot", "sub", "response"];
+  const runBtn = document.getElementById("runBtn");
+  const csvFile = document.getElementById("csvFile");
+  const output = document.getElementById("output");
+  const downloadBtn = document.getElementById("downloadBtn");
+  let lastReport = null;
+
+  function downloadJSON(name, obj) {
+    const blob = new Blob(
+      [JSON.stringify(obj, null, 2)],
+      { type: "application/json" }
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], field = "", inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i], n = text[i+1];
+      if (inQuotes) {
+        if (c === '"' && n === '"') { field += '"'; i++; }
+        else if (c === '"') inQuotes = false;
+        else field += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ",") { row.push(field); field = ""; }
+        else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+        else if (c !== "\r") field += c;
+      }
+    }
+    row.push(field);
+    if (row.some(x => x.trim() !== "")) rows.push(row);
+    return rows;
+  }
+
+  function inferValue(key, value) {
+    if (key === "response") {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : value;
+    }
+    return value.trim();
+  }
+
+  async function runPipeline(file) {
+
+    const text = await file.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) throw "CSV must contain header + data rows";
+
+    const header = rows[0].map(x => x.trim());
+    for (const k of reqCols)
+      if (!header.includes(k))
+        throw `Missing required column '${k}'`;
+
+    const data = rows.slice(1)
+      .filter(r => r.some(v => v.trim() !== ""))
+      .map(r => {
+        const o = {};
+        header.forEach((k,i) => o[k] = inferValue(k, r[i] ?? ""));
+        return o;
+      });
+
+    const req = { data };
+
+    const res = await fetch(urlCGI, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req)
+    });
+
+    const txt = await res.text();
+    if (!res.ok) throw `HTTP ${res.status}`;
+
+    lastReport = JSON.parse(txt);
+    output.textContent = JSON.stringify(lastReport, null, 2);
+    downloadBtn.disabled = false;
+
+  }
+
+  runBtn.onclick = () => csvFile.click();
+
+  csvFile.onchange = async () => {
+    if (!csvFile.files.length) return;
+    output.textContent = "[running...]";
+    downloadBtn.disabled = true;
+
+    try {
+      await runPipeline(csvFile.files[0]);
+    } catch (e) {
+      output.textContent = "";
+    }
+    csvFile.value = "";
+  };
+
+  downloadBtn.onclick = () =>
+    downloadJSON("report.json", lastReport);
+
+})();
+</script>
+
+</body>
+</html>
