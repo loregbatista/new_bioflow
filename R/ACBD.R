@@ -5,7 +5,7 @@
 ##' @seealso [Breeder() and SplitPlot()] for the pure virtual and concrete
 ##'     abstract template.
 ##' @field report list or analytical summary.
-##' @import methods sommer emmeans
+##' @import methods lme4 asreml emmeans
 ##' @examples
 ##' data(stg12025, package = "yabaf")
 ##' b <- Breeder(stg12025)
@@ -25,14 +25,13 @@ ACBD <- setRefClass(
       }
     },
     analyze = function() {
-      fit <- sommer::mmer(response ~ treat + role, random=~block, rcov=~ar1(row):ar1(column),
-                        data = .self$data)
+      fit <- asreml:asreml(response ~ 1+role, random=~block+treat, residual=~ar1(row):ar1(column),data = .self$data)
       ll   <- as.numeric(fit$logLik)
       reml <- "REML"
       sigma <- sqrt(fit$sigma2)
-      anova <- summary(fit)$fixed
+      anova <- asreml::wald(fit)
       vc <- summary(fit)$varcomp
-      means <- emmeans::emmeans(fit, specs = ~ treat)
+      means <-predict(fit,"treat")
       .self$appendLog(event = "report")
       .self$report <-  list("fit" = list("LogLik" = ll, "REML" = reml, "sigma" = sigma),
                             "anova" = anova,
@@ -55,3 +54,4 @@ setValidity(
     }
   }
 )
+
