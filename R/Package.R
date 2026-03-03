@@ -36,7 +36,7 @@ NULL
 ##' @name stg12025
 ##' @description Augmented complete block design example data set. Reproducible results.
 ##'     Check data and outputs in reference (\insertCite{gg;textual}{yabaf}).
-##' @format data frame with five columns: row, column, block, treat and response
+##' @format data frame with six columns: role, row, column, block, treat and response
 ##' @usage data(stg12025)
 ##' @references \insertAllCited{}
 ##' @rdname stg12025
