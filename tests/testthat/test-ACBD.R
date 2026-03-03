@@ -1,7 +1,7 @@
 library(testthat)
 
-data(gg1984, package = "yabaf")
-b <- Breeder(gg1984)
+data(stg12025, package = "yabaf")
+b <- Breeder(stg12025)
 l <- ACBD(b)
 
 test_that("Breeder abstract class test", {
@@ -13,5 +13,6 @@ test_that("ACBD concrete class test", {
 })
 
 test_that("ACBD concrete class sigma check", {
-  expect_equal(round(l$report$fit$sigma, 4), 17.9712) ## see reference
+  expect_equal(round(l$report$fit$sigma, 4), 0.1493) ## see reference
 })
+
