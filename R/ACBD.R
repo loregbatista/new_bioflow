@@ -25,13 +25,13 @@ ACBD <- setRefClass(
       }
     },
     analyze = function() {
-      fit <- asreml:asreml(response ~ 1+role, random=~block+treat, residual=~ar1(row):ar1(column),data = .self$data)
-      ll   <- as.numeric(fit$logLik)
-      reml <- "REML"
-      sigma <- sqrt(fit$sigma2)
-      anova <- asreml::wald(fit)
-      vc <- summary(fit)$varcomp
-      means <-predict(fit,"treat")
+      fit <- lme4::lmer(response ~ 1 + role + (1|block) + (1|treat) + (1|row) + (1|column), data = stg12025)
+      ll     <- as.numeric(logLik(fit))
+      reml <- lme4::REMLcrit(fit)
+      sigma <- sigma(fit)
+      anova <- emmeans::joint_tests(fit, lmer.df = "kenward-roger")
+      vc <- lme4::VarCorr(fit)
+      means <- fixef(fit)["(Intercept)"] + ranef(fit)$treat
       .self$appendLog(event = "report")
       .self$report <-  list("fit" = list("LogLik" = ll, "REML" = reml, "sigma" = sigma),
                             "anova" = anova,
@@ -54,4 +54,5 @@ setValidity(
     }
   }
 )
+
 
