@@ -47,7 +47,7 @@ ACBD <- setRefClass(
 
                 if (!is.factor(.self$data$treat))
                     .self$data$treat <- factor(.self$data$treat)
-                
+
                 .self$report <- .self$analyze()
             }
         },
@@ -84,7 +84,7 @@ setValidity(
         if (all(c("role", "row", "column", "block", "treat", "response") %in% names(object$data))) {
             TRUE
         } else {
-            "ACBD must contain role, row, column, block, treat and response data"            
+            "ACBD must contain role, row, column, block, treat and response data"
         }
         if (all(levels(object$data$role) %in% c("check", "test"))) {
             TRUE
