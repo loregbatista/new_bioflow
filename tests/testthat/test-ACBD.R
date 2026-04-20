@@ -1,16 +1,15 @@
 library(testthat)
 
-<<<<<<< HEAD
 data(wheat, package = "yabaf")
 b <- Breeder(wheat)
-l <- ACBD(b)
+a <- ACBD(b)
 
 test_that("Breeder abstract class test", {
     expect_true(is(b, "Breeder")) 
 })
 
 test_that("ACBD concrete class test", {
-    expect_true(is(l, "ACBD")) 
+    expect_true(is(a, "ACBD")) 
 })
 
 test_that("ACBD anova terms", {
@@ -24,21 +23,3 @@ test_that("ACBD variance components", {
 test_that("ACBD blues and blups", {
     expect_true(all(unique(a$report$means$treat) %in% levels(a$data$treat)))
 })
-=======
-data(stg12025, package = "yabaf")
-b <- Breeder(stg12025)
-l <- ACBD(b)
-
-test_that("Breeder abstract class test", {
-  expect_true(is(b, "Breeder")) 
-})
-
-test_that("ACBD concrete class test", {
-  expect_true(is(l, "ACBD")) 
-})
-
-test_that("ACBD concrete class sigma check", {
-  expect_equal(round(l$report$fit$sigma, 4), 0.1493) ## see reference
-})
-
->>>>>>> ae72bc2062008435c5f84dca75981f34b7cc3ec0

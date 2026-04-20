@@ -1,9 +1,9 @@
 Package: yabaf
 Type: Package
 Title: Yet Another Breeding Analytic Framework
-Version: 1.1.3
-Date: 2026-03-19
-Author: Fernando H Toledo [aut, cre]
+Version: 1.1.4
+Date: 2026-03-30
+Author: Fernando H Toledo [aut, cre], Angela Pacheco [aut]
 Maintainer: Fernando H Toledo <f.toledo@cgiar.org>
 Authors@R:
     c(person(given = c("Fernando", "H"),
@@ -24,6 +24,7 @@ RdMacros: Rdpack
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 NeedsCompilation: no
-Collate: 'Package.R' 'Interface.R' 'RCBD.R' 'Lattice.R' 'ACBD.R' 'Pedigree.R'
+Collate: 'Package.R' 'Interface.R' 'RCBD.R' 'Lattice.R' 'ACBD.R' 'Trial.R'
+         'Pedigree.R'
 RoxygenNote: 7.3.2
 Config/testthat/edition: 3
